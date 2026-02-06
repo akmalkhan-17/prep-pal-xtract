@@ -22,9 +22,29 @@ try {
 
     // ab check krlo ki username already exist krta ki ni 
 
-    const existingUserVerifyByEmail = await UserModel.findOne({ email });
+    const existingUserVerifyByUsername =await UserModel.findOne({ 
+        username,
+        isVerified: true
+    })
+
+    if( existingUserVerifyByUsername){
+        return Response.json(
+            {
+                success: false,
+                message: "Username is already taken.",
+            },
+            { status: 400 }
+        )
+    }
+    // ab check krlo ki email already exist krta ki ni
+
+    const existingUserVerifyByEmail = await UserModel.findOne({ 
+        email 
+    });
 
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verifyCodeExpiry = new Date(Date.now() + 60 * 60 * 1000);
     
     if (existingUserVerifyByEmail) {
     if (existingUserVerifyByEmail.isVerified) {
@@ -38,32 +58,24 @@ try {
     } else {
 
         // agar user exist krta hai but verified ni hai toh uska password update krdo, verify code update krdo and expiry date update krdo
-
-        const hashedPassword = await bcrypt.hash(password, 10);
     
         existingUserVerifyByEmail.username = username;
         existingUserVerifyByEmail.password = hashedPassword;
         existingUserVerifyByEmail.verifyCode = verifyCode;
-        existingUserVerifyByEmail.verifyCodeExpiry = new Date(
-        Date.now() + 60 * 60 * 1000
-        );
+        existingUserVerifyByEmail.verifyCodeExpiry = verifyCodeExpiry;
     
         await existingUserVerifyByEmail.save();
     }
     } else {
         
     // new user create krdo
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 1);
     
     const newUser = new UserModel({
         username,
         email,
         password: hashedPassword,
         verifyCode,
-        verifyCodeExpiry: expiryDate,
+        verifyCodeExpiry: verifyCodeExpiry,
         isVerified: false,
         interviews: [], 
 
