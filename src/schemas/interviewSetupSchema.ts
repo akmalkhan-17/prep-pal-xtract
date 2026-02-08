@@ -1,20 +1,20 @@
 import { z } from "zod";
 
 export const interviewSetupSchema = z
-    .object({
-        interviewType: z.enum(["skill", "role"]),
+.object({
+    interviewType: z.enum(["role", "resume"]),
 
-        skills: z.array(z.string()).optional(),
+    role: z.string().optional(),
 
-        role: z.string().optional(),
-    })
-    .refine(
-        (data) =>
-        (data.interviewType === "skill" && data.skills?.length) ||
-        (data.interviewType === "role" && data.role),
-        {
-        message:
-            "Skills are required for skill-based interview and role is required for role-based interview",
-        path: ["interviewType"],
-        }
-    );
+    resumeText: z.string().optional(),
+})
+.refine(
+    (data) =>
+    (data.interviewType === "role" && !!data.role) ||
+    (data.interviewType === "resume" && !!data.resumeText),
+    {
+    message:
+        "Role is required for role-based interview and resume text is required for resume-based interview",
+    path: ["interviewType"],
+    }
+);

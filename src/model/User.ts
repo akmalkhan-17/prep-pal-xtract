@@ -1,12 +1,13 @@
-import mongoose, { Schema, Document} from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 
 //for interview
 
-export interface Interview extends Document {
-    interviewType: "skill" | "role"
-    skills?: string[]
+export interface Interview  {
+    _id?: Types.ObjectId;
+    interviewType: "role" | "resume"
     role?: string
+    resumeText?: string
 
     softSkillsScore: number
     technicalSkillsScore: number
@@ -16,20 +17,18 @@ export interface Interview extends Document {
 }
 
 const InterviewSchema: Schema<Interview> = new Schema({
-    interviewType:{
+    interviewType: {
         type: String,
-        enum: ["skill", "role"],
+        enum: ["role", "resume"],
         required: true
     },
-    skills:{
-        type: [String],
-        default:[]
-    }
-    ,
-    role:{
+    role: {
         type: String,
         default: null
-    
+    },
+    resumeText: {
+        type: String,
+        default: null
     },
     softSkillsScore:{
         type: Number,
@@ -48,7 +47,7 @@ const InterviewSchema: Schema<Interview> = new Schema({
         default: Date.now
     }
 },
-{_id: false}
+
 );
 
 //User Schema
@@ -104,4 +103,3 @@ const UserModel =
     mongoose.model<User>("User", UserSchema);
 
 export default UserModel;
-
