@@ -9,13 +9,10 @@ export async function sendVerificationEmail(
     ): Promise<ApiResponse> {
     try {
         await resend.emails.send({
-        from: "AI Interview Platform <onboarding@resend.dev>",
-        to: email,
-        subject: "Verify your email",
-        react: VerificationEmail({
-            username,
-            otp: verifyCode,
-        }),
+            from: "onboarding@resend.dev",
+            to: email,
+            subject: "Verification Code",
+            text: `Hi ${username}, your verification code is ${verifyCode}`,
         });
 
         return {

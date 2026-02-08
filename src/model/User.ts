@@ -59,8 +59,8 @@ export interface User extends Document {
     email: string;
     password: string;
     isVerified: boolean;
-    verifyCode: string;
-    verifyCodeExpiry: Date;
+    verifyCode?: string;
+    verifyCodeExpiry?: Date;
     interviews: Interview[];
 }
 
