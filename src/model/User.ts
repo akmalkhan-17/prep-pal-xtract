@@ -1,10 +1,9 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
-//for interview 
-
 export interface InterviewQuestion {
+    _id?: Types.ObjectId;   
     question: string;
-    answer: string;
+    answer?: string;
     feedback?: string;
     score?: number;
 }
