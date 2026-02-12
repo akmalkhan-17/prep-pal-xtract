@@ -1,7 +1,13 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
+//for interview 
 
-//for interview
+export interface InterviewQuestion {
+    question: string;
+    answer: string;
+    feedback?: string;
+    score?: number;
+}
 
 export interface Interview  {
     _id?: Types.ObjectId;
@@ -9,10 +15,12 @@ export interface Interview  {
     role?: string
     resumeText?: string
 
+    questions?: InterviewQuestion[];
+
     softSkillsScore: number
     technicalSkillsScore: number
     overallScore: number
-
+    
     createdAt: Date
 }
 
@@ -45,7 +53,18 @@ const InterviewSchema: Schema<Interview> = new Schema({
     createdAt:{
         type: Date,
         default: Date.now
-    }
+    },
+    questions: {
+        type: [
+            {
+                question: { type: String, required: true },
+                answer: { type: String, required: true },
+                feedback: { type: String },
+                score: { type: Number },
+            }
+        ],
+        default: [],
+    },
 },
 
 );
@@ -60,7 +79,7 @@ export interface User extends Document {
     isVerified: boolean;
     verifyCode?: string;
     verifyCodeExpiry?: Date;
-    interviews: Interview[];
+    interviews: Types.DocumentArray<Interview>;
 }
 
 const UserSchema: Schema<User> = new Schema({
