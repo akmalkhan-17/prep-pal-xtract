@@ -1,20 +1,44 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import {
+    INTERVIEW_ROLES,
+    INTERVIEW_STATUSES,
+    MAX_INTERVIEW_QUESTIONS,
+    QUESTION_DIFFICULTIES,
+    type InterviewRole,
+    type InterviewStatus,
+    type QuestionDifficulty,
+} from "@/lib/interview-config";
 
 export interface InterviewQuestion {
     _id?: Types.ObjectId;   
     question: string;
-    answer?: string;
-    feedback?: string;
-    score?: number;
+    order: number;
+    difficulty: QuestionDifficulty;
+    answer?: string | null;
+    feedback?: string | null;
+    technicalScore?: number | null;
+    communicationScore?: number | null;
+}
+
+export interface VideoMetrics {
+    faceVisibility: number;
+    postureScore: number;
+    gazeScore: number;
+    engagementScore: number;
+    totalFrames: number;
+    framesWithFace: number;
 }
 
 export interface Interview  {
     _id?: Types.ObjectId;
     interviewType: "role" | "resume"
-    role?: string
-    resumeText?: string
+    role?: InterviewRole | null
+    resumeText?: string | null
 
     questions?: InterviewQuestion[];
+    status: InterviewStatus;
+    totalQuestions: number;
+    videoMetrics?: VideoMetrics | null;
 
     softSkillsScore: number
     technicalSkillsScore: number
@@ -31,11 +55,34 @@ const InterviewSchema: Schema<Interview> = new Schema({
     },
     role: {
         type: String,
+        enum: INTERVIEW_ROLES,
         default: null
     },
     resumeText: {
         type: String,
         default: null
+    },
+    status: {
+        type: String,
+        enum: INTERVIEW_STATUSES,
+        default: "in_progress",
+        required: true
+    },
+    totalQuestions: {
+        type: Number,
+        default: MAX_INTERVIEW_QUESTIONS,
+        required: true
+    },
+    videoMetrics: {
+        type: {
+            faceVisibility: { type: Number, default: 0 },
+            postureScore: { type: Number, default: 0 },
+            gazeScore: { type: Number, default: 0 },
+            engagementScore: { type: Number, default: 0 },
+            totalFrames: { type: Number, default: 0 },
+            framesWithFace: { type: Number, default: 0 },
+        },
+        default: null,
     },
     softSkillsScore:{
         type: Number,
@@ -57,9 +104,16 @@ const InterviewSchema: Schema<Interview> = new Schema({
         type: [
             {
                 question: { type: String, required: true },
-                answer: { type: String, required: true },
-                feedback: { type: String },
-                score: { type: Number },
+                order: { type: Number, required: true },
+                difficulty: {
+                    type: String,
+                    enum: QUESTION_DIFFICULTIES,
+                    required: true
+                },
+                answer: { type: String, default: null },
+                feedback: { type: String, default: null },
+                technicalScore: { type: Number, default: null },
+                communicationScore: { type: Number, default: null },
             }
         ],
         default: [],

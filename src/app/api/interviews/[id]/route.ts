@@ -2,7 +2,9 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 import { auth } from "@/auth";
 
-export async function GET(request : Request,{ params }: { params: { id: string } }
+export async function GET(
+    request: Request,
+    context: { params: Promise<{ id: string }> }
 ) {
 
     await dbConnect()
@@ -18,7 +20,7 @@ export async function GET(request : Request,{ params }: { params: { id: string }
         );
     }
 
-    const interviewId = params.id;
+    const { id: interviewId } = await context.params;
 
     if (!interviewId) {
         return Response.json(

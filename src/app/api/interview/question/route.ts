@@ -1,126 +1,126 @@
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
 import { auth } from "@/auth";
-import OpenAI from "openai";
-
-if (!process.env.OPENAI_API_KEY) {
-throw new Error("OPENAI_API_KEY is not defined in .env");
-}
-
-const openai = new OpenAI({
-apiKey: process.env.OPENAI_API_KEY,
-});
+import dbConnect from "@/lib/dbConnect";
+import {
+  countAnsweredQuestions,
+  generateInterviewQuestion,
+  getPendingQuestion,
+  serializeQuestion,
+} from "@/lib/interview-engine";
+import { MAX_INTERVIEW_QUESTIONS } from "@/lib/interview-config";
+import UserModel from "@/model/User";
 
 export async function POST(request: Request) {
-await dbConnect();
+  await dbConnect();
 
-    try {
-        // authenticate user
-        const session = await auth();
+  try {
+    const session = await auth();
 
-        if (!session || !session.user?.id) {
-        return Response.json(
-            { success: false, message: "Unauthorized" },
-            { status: 401 }
-        );
-        }
+    if (!session || !session.user?.id) {
+      return Response.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-        // Get interviewId from body
-        const { interviewId } = await request.json();
+    const { interviewId } = await request.json();
 
-        if (!interviewId) {
-        return Response.json(
-            { success: false, message: "Interview ID is required" },
-            { status: 400 }
-        );
-        }
+    if (!interviewId) {
+      return Response.json(
+        { success: false, message: "Interview ID is required" },
+        { status: 400 }
+      );
+    }
 
-        // Find user
-        const user = await UserModel.findById(session.user.id);
+    const user = await UserModel.findById(session.user.id);
 
-        if (!user) {
-        return Response.json(
-            { success: false, message: "User not found" },
-            { status: 404 }
-        );
-        }
+    if (!user) {
+      return Response.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
 
+    const interview = user.interviews.id(interviewId);
 
-        const interview = user.interviews.id(interviewId);
+    if (!interview) {
+      return Response.json(
+        { success: false, message: "Interview not found" },
+        { status: 404 }
+      );
+    }
 
-        if (!interview) {
-        return Response.json(
-            { success: false, message: "Interview not found" },
-            { status: 404 }
-        );
-        }
-
-        //  AI prompt
-        let prompt = "";
-
-        if (interview.interviewType === "role") {
-        prompt = `
-    You are a professional technical interviewer.
-
-    Generate 3 high-quality technical interview questions for a ${interview.role} position.
-
-    Return strictly a JSON array like:
-    ["Question 1", "Question 2", "Question 3"]
-
-    Do not include explanations.
-    `;
-        } else {
-        prompt = `
-    You are a professional technical interviewer.
-
-    Based on this resume:
-    ${interview.resumeText}
-
-    Generate 3 relevant technical interview questions.
-
-    Return strictly a JSON array like:
-    ["Question 1", "Question 2", "Question 3"]
-
-    Do not include explanations.
-    `;
-        }
-
-        //  OpenAI
-        const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-            {
-            role: "user",
-            content: prompt,
-            },
-        ],
-        max_tokens: 300,
-        temperature: 0.7,
-        });
-
-        const raw = response.choices[0].message.content;
-
-        let questions: string[] = [];
-
-        try {
-        questions = JSON.parse(raw || "[]");
-        } catch {
-        questions = raw ? [raw] : [];
-        }
-
-        return Response.json(
+    if (interview.status === "completed") {
+      return Response.json(
         {
-            success: true,
-            questions,
+          success: true,
+          isInterviewComplete: true,
         },
         { status: 200 }
-        );
-} catch (error) {
-    console.error("Error in /api/interview/question:", error);
+      );
+    }
+
+    const pendingQuestion = getPendingQuestion(interview);
+
+    if (pendingQuestion) {
+      return Response.json(
+        {
+          success: true,
+          isInterviewComplete: false,
+          question: serializeQuestion(pendingQuestion),
+        },
+        { status: 200 }
+      );
+    }
+
+    const answeredQuestions = countAnsweredQuestions(interview);
+    const totalQuestions = interview.totalQuestions || MAX_INTERVIEW_QUESTIONS;
+
+    if (answeredQuestions >= totalQuestions) {
+      return Response.json(
+        {
+          success: true,
+          isInterviewComplete: true,
+        },
+        { status: 200 }
+      );
+    }
+
+    const generatedQuestion = await generateInterviewQuestion(interview);
+
+    if (!generatedQuestion.question) {
+      return Response.json(
+        { success: false, message: "Failed to generate interview question" },
+        { status: 500 }
+      );
+    }
+
+    interview.questions = interview.questions || [];
+    interview.questions.push({
+      question: generatedQuestion.question,
+      order: generatedQuestion.order,
+      difficulty: generatedQuestion.difficulty,
+    });
+
+    await user.save();
+
+    const savedQuestion = interview.questions[interview.questions.length - 1];
 
     return Response.json(
-    { success: false, message: "Internal Server Error" },
-    { status: 500 }
+      {
+        success: true,
+        isInterviewComplete: false,
+        question: serializeQuestion(savedQuestion),
+      },
+      { status: 200 }
     );
-}
+  } catch (error) {
+    console.error("Error in /api/interview/question:", error);
+    const message =
+      error instanceof Error ? error.message : "Internal Server Error";
+
+    return Response.json(
+      { success: false, message },
+      { status: 500 }
+    );
+  }
 }

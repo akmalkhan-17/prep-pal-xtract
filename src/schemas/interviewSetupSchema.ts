@@ -1,12 +1,13 @@
 import { z } from "zod";
+import { INTERVIEW_ROLES } from "@/lib/interview-config";
 
 export const interviewSetupSchema = z
 .object({
     interviewType: z.enum(["role", "resume"]),
 
-    role: z.string().optional(),
+    role: z.enum(INTERVIEW_ROLES).optional(),
 
-    resumeText: z.string().optional(),
+    resumeText: z.string().trim().min(1).optional(),
 })
 .refine(
     (data) =>

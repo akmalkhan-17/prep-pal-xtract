@@ -32,10 +32,13 @@ export async function GET() {
         _id: interview._id,
         interviewType: interview.interviewType,
         role: interview.role,
+        status: interview.status || "in_progress",
         softSkillsScore: interview.softSkillsScore,
         technicalSkillsScore: interview.technicalSkillsScore,
         overallScore: interview.overallScore,
-        totalQuestions: interview.questions?.length || 0,
+        totalQuestions: interview.totalQuestions || 0,
+        answeredQuestions:
+            interview.questions?.filter((question) => Boolean(question.answer?.trim())).length || 0,
         createdAt: interview.createdAt,
     }));
 
