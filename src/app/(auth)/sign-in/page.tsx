@@ -37,25 +37,25 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 px-4 py-10">
+    <div className="min-h-screen bg-[#222831] px-4 py-10">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
-        <div className="grid w-full overflow-hidden rounded-[2rem] border border-purple-200/50 bg-white/70 shadow-2xl shadow-purple-200/30 lg:grid-cols-[0.9fr_1.1fr]">
-          <section className="hidden bg-gradient-to-br from-purple-200/60 to-pink-100/60 p-10 lg:block">
-            <p className="text-sm uppercase tracking-[0.3em] text-purple-600/70">
+        <div className="grid w-full overflow-hidden rounded-[2rem] border border-[#393E46] bg-[#2A2F38] shadow-2xl lg:grid-cols-[0.9fr_1.1fr]">
+          <section className="hidden bg-[#1F2328] p-10 lg:block">
+            <p className="text-sm uppercase tracking-[0.3em] text-[#00ADB5]">
               Welcome Back
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-800">
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-[#EEEEEE]">
               Continue your interview practice with a clean, guided flow.
             </h1>
-            <p className="mt-4 max-w-md text-sm leading-7 text-slate-700">
+            <p className="mt-4 max-w-md text-sm leading-7 text-[#EEEEEE]">
               Sign in to access the dashboard, start a new interview, review
               previous attempts, and see your technical and communication scores.
             </p>
           </section>
 
           <section className="w-full p-6 sm:p-10">
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-800">Sign In</h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <h1 className="text-3xl font-semibold tracking-tight text-[#EEEEEE]">Sign In</h1>
+            <p className="mt-2 text-sm text-[#EEEEEE]/70">
               Use your credentials or continue with Google.
             </p>
 
@@ -65,7 +65,7 @@ export default function SignInPage() {
                 placeholder="Email or Username"
                 value={identifier}
                 onChange={(event) => setIdentifier(event.target.value)}
-                className="rounded-2xl border border-purple-200/50 bg-white/80 px-4 py-3 text-slate-800 placeholder:text-slate-400"
+                className="rounded-2xl border border-[#393E46] bg-[#1F2328] px-4 py-3 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50"
               />
 
               <input
@@ -73,17 +73,17 @@ export default function SignInPage() {
                 placeholder="Password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="rounded-2xl border border-purple-200/50 bg-white/80 px-4 py-3 text-slate-800 placeholder:text-slate-400"
+                className="rounded-2xl border border-[#393E46] bg-[#1F2328] px-4 py-3 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50"
               />
 
               {error ? (
-                <p className="text-sm text-rose-500">{error}</p>
+                <p className="text-sm text-red-400">{error}</p>
               ) : null}
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="rounded-full bg-gradient-to-r from-purple-300 to-pink-200 px-4 py-3 font-semibold text-slate-700 transition hover:from-purple-400 hover:to-pink-300 disabled:opacity-60"
+                className="rounded-full bg-[#00ADB5] px-4 py-3 font-semibold text-[#222831] transition hover:bg-[#00ADB5]/90 disabled:opacity-60"
               >
                 {isSubmitting ? "Signing in..." : "Sign in with Credentials"}
               </button>
@@ -91,14 +91,14 @@ export default function SignInPage() {
 
             <button
               onClick={() => signIn("google", { callbackUrl: "/" })}
-              className="mt-4 w-full rounded-full bg-white px-4 py-3 font-semibold text-slate-700 shadow-md transition hover:bg-slate-50 hover:shadow-lg"
+              className="mt-4 w-full rounded-full border border-[#393E46] bg-[#1F2328] px-4 py-3 font-semibold text-[#EEEEEE] shadow-md transition hover:bg-[#2A2F38] hover:shadow-lg"
             >
               Sign in with Google
             </button>
 
-            <p className="mt-6 text-sm text-slate-600">
+            <p className="mt-6 text-sm text-[#EEEEEE]/70">
               Need an account?{" "}
-              <Link href="/sign-up" className="font-semibold text-purple-600 hover:text-purple-700">
+              <Link href="/sign-up" className="font-semibold text-[#00ADB5] hover:text-[#00ADB5]/80">
                 Create one here
               </Link>
             </p>

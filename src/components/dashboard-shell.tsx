@@ -15,33 +15,33 @@ export async function DashboardShell(props: {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100">
+    <div className="min-h-screen bg-[#222831]">
       <div className="mx-auto max-w-7xl px-6 py-6">
-        <nav className="flex flex-col gap-4 rounded-[2rem] border border-purple-200/50 bg-white/70 px-6 py-5 backdrop-blur shadow-lg shadow-purple-200/20 md:flex-row md:items-center md:justify-between">
+        <nav className="flex flex-col gap-4 rounded-[2rem] border border-[#393E46] bg-[#2A2F38] px-6 py-5 backdrop-blur shadow-lg md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.28em] text-purple-600/70">
+            <p className="text-sm uppercase tracking-[0.28em] text-[#00ADB5]">
               AI Interview Platform
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-800">
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[#EEEEEE]">
               {props.title}
             </h1>
-            <p className="mt-1 text-sm text-slate-600">{props.description}</p>
+            <p className="mt-1 text-sm text-[#EEEEEE]/70">{props.description}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/dashboard"
-              className="rounded-full px-4 py-2 text-sm text-slate-700 transition hover:bg-purple-100/50"
+              className="rounded-full px-4 py-2 text-sm text-[#EEEEEE] transition hover:bg-[#393E46]"
             >
               Dashboard
             </Link>
             <Link
               href="/dashboard/setup"
-              className="rounded-full px-4 py-2 text-sm text-slate-700 transition hover:bg-purple-100/50"
+              className="rounded-full px-4 py-2 text-sm text-[#EEEEEE] transition hover:bg-[#393E46]"
             >
               Setup Interview
             </Link>
-            <div className="rounded-full border border-purple-200/50 px-4 py-2 text-sm text-slate-700">
+            <div className="rounded-full border border-[#393E46] px-4 py-2 text-sm text-[#EEEEEE]">
               {session.user.username || session.user.email}
             </div>
             <SignOutButton />

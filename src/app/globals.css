@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf8f3;
-  --foreground: #2c2c2c;
-  --primary: #d4a5ff;
-  --primary-dark: #c08ef5;
-  --secondary: #b5e7ff;
-  --accent: #ffc9e8;
-  --success: #a8d5ba;
-  --muted: #e8dfd7;
+  --background: #222831;
+  --foreground: #EEEEEE;
+  --primary: #00ADB5;
+  --secondary: #393E46;
+  --accent: #00ADB5;
+  --muted: #393E46;
 }
 
 @theme inline {
@@ -50,6 +48,6 @@ textarea {
 }
 
 ::selection {
-  background: rgba(251, 191, 36, 0.35);
-  color: white;
+  background: rgba(0, 173, 181, 0.35);
+  color: #EEEEEE;
 }
