@@ -46,12 +46,12 @@ const handleSubmit = async (e: React.FormEvent) => {
 };
 
 return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,191,36,0.16),_transparent_28%),linear-gradient(180deg,_#08111f,_#0f172a)] px-4 py-10 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 px-4 py-10">
     <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
-    <form onSubmit={handleSubmit} className="w-full max-w-lg rounded-[2rem] border border-white/10 bg-white/5 p-8">
-        <p className="text-sm uppercase tracking-[0.3em] text-amber-200/75">Create Account</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Get started with interview practice</h1>
-        <p className="mt-2 text-sm text-slate-300">
+    <form onSubmit={handleSubmit} className="w-full max-w-lg rounded-[2rem] border border-purple-200/50 bg-white/70 p-8 shadow-lg shadow-purple-200/20">
+        <p className="text-sm uppercase tracking-[0.3em] text-purple-600/70">Create Account</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-800">Get started with interview practice</h1>
+        <p className="mt-2 text-sm text-slate-600">
           Sign up to access the dashboard, start interview sessions, and track your scores.
         </p>
 
@@ -59,14 +59,14 @@ return (
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="mt-6 w-full rounded-2xl border border-white/10 bg-slate-950/60 p-3 text-white placeholder:text-slate-500"
+        className="mt-6 w-full rounded-2xl border border-purple-200/50 bg-white/80 p-3 text-slate-800 placeholder:text-slate-400"
         />
 
         <input
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="mt-4 w-full rounded-2xl border border-white/10 bg-slate-950/60 p-3 text-white placeholder:text-slate-500"
+        className="mt-4 w-full rounded-2xl border border-purple-200/50 bg-white/80 p-3 text-slate-800 placeholder:text-slate-400"
         />
 
         <input
@@ -74,22 +74,22 @@ return (
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="mt-4 w-full rounded-2xl border border-white/10 bg-slate-950/60 p-3 text-white placeholder:text-slate-500"
+        className="mt-4 w-full rounded-2xl border border-purple-200/50 bg-white/80 p-3 text-slate-800 placeholder:text-slate-400"
         />
 
-        {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
-        {message ? <p className="mt-4 text-sm text-emerald-300">{message}</p> : null}
+        {error ? <p className="mt-4 text-sm text-rose-500">{error}</p> : null}
+        {message ? <p className="mt-4 text-sm text-green-600">{message}</p> : null}
 
         <button
           disabled={isSubmitting}
-          className="mt-6 w-full rounded-full bg-amber-300 p-3 font-semibold text-slate-950 transition hover:bg-amber-200 disabled:opacity-60"
+          className="mt-6 w-full rounded-full bg-gradient-to-r from-purple-300 to-pink-200 p-3 font-semibold text-slate-700 transition hover:from-purple-400 hover:to-pink-300 disabled:opacity-60"
         >
         {isSubmitting ? "Creating Account..." : "Create Account"}
         </button>
 
-        <p className="mt-5 text-sm text-slate-300">
+        <p className="mt-5 text-sm text-slate-600">
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-semibold text-amber-200">
+          <Link href="/sign-in" className="font-semibold text-purple-600 hover:text-purple-700">
             Sign in
           </Link>
         </p>

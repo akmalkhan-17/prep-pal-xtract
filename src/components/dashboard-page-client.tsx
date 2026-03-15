@@ -76,15 +76,15 @@ export function DashboardPageClient() {
   return (
     <div className="space-y-8">
       <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <article className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20">
-          <p className="text-sm uppercase tracking-[0.3em] text-amber-200/75">
+        <article className="rounded-[2rem] border border-purple-200/50 bg-white/70 p-8 shadow-lg shadow-purple-200/20">
+          <p className="text-sm uppercase tracking-[0.3em] text-purple-600/70">
             Interview Command Center
           </p>
-          <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight">
+          <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-slate-800">
             Run a focused mock interview and get structured feedback on both
             technical depth and communication.
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
             Start with a role or upload your resume. The backend will generate
             3 adaptive questions, evaluate each transcribed answer, and score
             your video engagement when the session ends.
@@ -93,38 +93,38 @@ export function DashboardPageClient() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/dashboard/setup"
-              className="rounded-full bg-amber-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-200"
+              className="rounded-full bg-gradient-to-r from-purple-300 to-pink-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:from-purple-400 hover:to-pink-300"
             >
               Set Up Interview Now
             </Link>
             <Link
               href="#history"
-              className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+              className="rounded-full border border-purple-300/50 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-purple-100/50"
             >
               View History
             </Link>
           </div>
         </article>
 
-        <article className="rounded-[2rem] border border-emerald-300/15 bg-emerald-400/10 p-8">
-          <p className="text-sm uppercase tracking-[0.28em] text-emerald-100/75">
+        <article className="rounded-[2rem] border border-green-200/50 bg-gradient-to-br from-green-100/60 to-emerald-100/60 p-8 backdrop-blur-sm">
+          <p className="text-sm uppercase tracking-[0.28em] text-green-700/70">
             Latest Session
           </p>
           {stats.latestInterview ? (
             <div className="mt-6 space-y-3">
-              <p className="text-4xl font-semibold">
+              <p className="text-4xl font-semibold text-slate-800">
                 {Math.round(stats.latestInterview.overallScore)}
-                <span className="ml-2 text-lg text-emerald-100/70">/100</span>
+                <span className="ml-2 text-lg text-green-700/70">/100</span>
               </p>
-              <p className="text-sm text-emerald-50/80">
+              <p className="text-sm text-slate-700">
                 {formatInterviewLabel(stats.latestInterview)}
               </p>
-              <p className="text-sm text-emerald-50/70">
+              <p className="text-sm text-slate-600">
                 Status: {stats.latestInterview.status.replace("_", " ")}
               </p>
             </div>
           ) : (
-            <p className="mt-6 text-sm leading-7 text-emerald-50/75">
+            <p className="mt-6 text-sm leading-7 text-slate-700">
               No interview has been completed yet. Your first session will show
               up here.
             </p>
@@ -133,7 +133,7 @@ export function DashboardPageClient() {
       </section>
 
       {error ? (
-        <div className="rounded-3xl border border-red-400/30 bg-red-500/10 px-5 py-4 text-sm text-red-100">
+        <div className="rounded-3xl border border-rose-300/50 bg-rose-100/60 px-5 py-4 text-sm text-rose-700">
           {error}
         </div>
       ) : null}
@@ -159,19 +159,19 @@ export function DashboardPageClient() {
 
       <section
         id="history"
-        className="rounded-[2rem] border border-white/10 bg-slate-950/40 p-6"
+        className="rounded-[2rem] border border-purple-200/50 bg-white/70 p-6 shadow-lg shadow-purple-200/20"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.28em] text-slate-400">
+            <p className="text-sm uppercase tracking-[0.28em] text-purple-600/70">
               Interview History
             </p>
-            <h3 className="mt-2 text-2xl font-semibold">Recent attempts</h3>
+            <h3 className="mt-2 text-2xl font-semibold text-slate-800">Recent attempts</h3>
           </div>
 
           <Link
             href="/dashboard/setup"
-            className="rounded-full border border-white/15 px-4 py-2 text-sm text-white transition hover:bg-white/10"
+            className="rounded-full border border-purple-300/50 px-4 py-2 text-sm text-slate-700 transition hover:bg-purple-100/50"
           >
             New Interview
           </Link>
@@ -179,30 +179,30 @@ export function DashboardPageClient() {
 
         <div className="mt-6 space-y-4">
           {isLoading ? (
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-slate-300">
+            <div className="rounded-3xl border border-purple-200/50 bg-white/60 p-5 text-sm text-slate-600">
               Loading interview history...
             </div>
           ) : interviews.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-white/15 bg-white/5 p-8 text-sm text-slate-300">
+            <div className="rounded-3xl border border-dashed border-purple-200/50 bg-white/60 p-8 text-sm text-slate-600">
               No interview records yet. Start one from the setup page.
             </div>
           ) : (
             interviews.map((interview) => (
               <article
                 key={interview._id}
-                className="grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 lg:grid-cols-[1.5fr_1fr_auto]"
+                className="grid gap-4 rounded-3xl border border-purple-200/40 bg-gradient-to-br from-purple-50/70 to-pink-50/70 p-5 lg:grid-cols-[1.5fr_1fr_auto]"
               >
                 <div>
-                  <p className="text-lg font-semibold text-white">
+                  <p className="text-lg font-semibold text-slate-800">
                     {formatInterviewLabel(interview)}
                   </p>
-                  <p className="mt-1 text-sm text-slate-300">
+                  <p className="mt-1 text-sm text-slate-600">
                     {formatDate(interview.createdAt)} | {interview.answeredQuestions}/
                     {interview.totalQuestions} answered
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-300">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-700">
                   <Badge>{interview.status.replace("_", " ")}</Badge>
                   <Badge>Overall {Math.round(interview.overallScore)}</Badge>
                 </div>
@@ -214,7 +214,7 @@ export function DashboardPageClient() {
                         ? `/dashboard/results/${interview._id}`
                         : `/dashboard/interview/${interview._id}`
                     }
-                    className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
+                    className="rounded-full bg-gradient-to-r from-purple-300 to-pink-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:from-purple-400 hover:to-pink-300"
                   >
                     {interview.status === "completed" ? "View Results" : "Resume"}
                   </Link>
@@ -230,16 +230,16 @@ export function DashboardPageClient() {
 
 function StatCard(props: { label: string; value: string }) {
   return (
-    <article className="rounded-[1.75rem] border border-white/10 bg-white/5 p-5">
-      <p className="text-sm text-slate-400">{props.label}</p>
-      <p className="mt-3 text-3xl font-semibold text-white">{props.value}</p>
+    <article className="rounded-[1.75rem] border border-purple-200/50 bg-white/70 p-5 shadow-md shadow-purple-200/10">
+      <p className="text-sm text-slate-600">{props.label}</p>
+      <p className="mt-3 text-3xl font-semibold text-slate-800">{props.value}</p>
     </article>
   );
 }
 
 function Badge(props: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+    <span className="rounded-full border border-purple-200/50 bg-white/70 px-3 py-1 text-slate-700">
       {props.children}
     </span>
   );
