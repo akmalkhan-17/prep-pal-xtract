@@ -1,4 +1,4 @@
-# PrepPal Xtract 🎯
+# PrepPal by Team Xtract 🎯
 
 An AI-powered mock interview platform that conducts adaptive technical interviews using your resume or a selected role. Get real-time feedback on your answers, video analysis of your body language, and detailed performance scores.
 
