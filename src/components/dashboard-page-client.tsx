@@ -99,7 +99,7 @@ export function DashboardPageClient() {
             </Link>
             <Link
               href="#history"
-              className="rounded-full border border-[#393E46] px-5 py-3 text-sm font-medium text-[#EEEEEE] transition hover:bg-[#393E46]"
+              className="rounded-full border border-[#393E46] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#393E46]"
             >
               View History
             </Link>
@@ -171,7 +171,7 @@ export function DashboardPageClient() {
 
           <Link
             href="/dashboard/setup"
-            className="rounded-full border border-[#393E46] px-4 py-2 text-sm text-[#EEEEEE] transition hover:bg-[#393E46]"
+            className="rounded-full border border-[#393E46] px-4 py-2 text-sm text-white transition hover:bg-[#393E46]"
           >
             New Interview
           </Link>
@@ -179,11 +179,11 @@ export function DashboardPageClient() {
 
         <div className="mt-6 space-y-4">
           {isLoading ? (
-            <div className="rounded-3xl border border-[#393E46] bg-[#1F2328] p-5 text-sm text-[#EEEEEE]/70">
+            <div className="rounded-3xl border border-[#393E46] bg-[#1F2328] p-5 text-sm text-white">
               Loading interview history...
             </div>
           ) : interviews.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-[#393E46] bg-[#1F2328] p-8 text-sm text-[#EEEEEE]/70">
+            <div className="rounded-3xl border border-dashed border-[#393E46] bg-[#1F2328] p-8 text-sm text-white">
               No interview records yet. Start one from the setup page.
             </div>
           ) : (
@@ -196,7 +196,7 @@ export function DashboardPageClient() {
                   <p className="text-lg font-semibold text-[#EEEEEE]">
                     {formatInterviewLabel(interview)}
                   </p>
-                  <p className="mt-1 text-sm text-[#EEEEEE]/70">
+                  <p className="mt-1 text-sm text-white">
                     {formatDate(interview.createdAt)} | {interview.answeredQuestions}/
                     {interview.totalQuestions} answered
                   </p>
@@ -239,7 +239,7 @@ function StatCard(props: { label: string; value: string }) {
 
 function Badge(props: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-[#393E46] bg-[#1F2328] px-3 py-1 text-[#EEEEEE]/80">
+    <span className="rounded-full border border-[#393E46] bg-[#1F2328] px-3 py-1 text-white">
       {props.children}
     </span>
   );
