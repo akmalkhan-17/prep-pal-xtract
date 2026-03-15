@@ -3,6 +3,7 @@ import dbConnect from "@/lib/dbConnect";
 import { MAX_INTERVIEW_QUESTIONS } from "@/lib/interview-config";
 import UserModel from "@/model/User";
 import { interviewSetupSchema } from "@/schemas/interviewSetupSchema";
+import mongoose from "mongoose";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -17,6 +18,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!mongoose.Types.ObjectId.isValid(session.user.id)) {
+      return Response.json(
+        { success: false, message: "Invalid user session" },
+        { status: 401 }
+      );
+    }
+
     const parsedBody = interviewSetupSchema.safeParse(await request.json());
 
     if (!parsedBody.success) {
@@ -27,16 +35,9 @@ export async function POST(request: Request) {
     }
 
     const { interviewType, role, resumeText } = parsedBody.data;
-    const user = await UserModel.findById(session.user.id);
 
-    if (!user) {
-      return Response.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    user.interviews.push({
+    const newInterview = {
+      _id: new mongoose.Types.ObjectId(),
       interviewType,
       role: interviewType === "role" ? role : undefined,
       resumeText: interviewType === "resume" ? resumeText?.trim() : undefined,
@@ -48,21 +49,36 @@ export async function POST(request: Request) {
       technicalSkillsScore: 0,
       overallScore: 0,
       createdAt: new Date(),
-    });
+    };
 
-    await user.save();
+    // Use atomic $push to avoid Mongoose VersionError
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      session.user.id,
+      { $push: { interviews: newInterview } },
+      { new: true }
+    );
 
-    const interviewId = user.interviews[user.interviews.length - 1]._id;
+    if (!updatedUser) {
+      return Response.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
 
     return Response.json(
-      { success: true, interviewId },
+      { success: true, interviewId: newInterview._id },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error starting interview:", error);
 
+    const message =
+      process.env.NODE_ENV === "development" && error instanceof Error
+        ? error.message
+        : "Internal server error";
+
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { success: false, message },
       { status: 500 }
     );
   }

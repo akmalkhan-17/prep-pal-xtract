@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 import { auth } from "@/auth";
+import mongoose from "mongoose";
 
 export async function GET(request: Request) {
     await dbConnect();
@@ -16,6 +17,13 @@ export async function GET(request: Request) {
         }
 
         const userId = session.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return Response.json(
+                { success: false, message: "Invalid user session" },
+                { status: 401 }
+            );
+        }
 
         const user = await UserModel.findById(userId).select("-password -verifyCode -verifyCodeExpiry");
 

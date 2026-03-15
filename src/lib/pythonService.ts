@@ -10,9 +10,10 @@ const PYTHON_SERVICE_URL = (
 type ResumeParseResponse = {
   success: boolean;
   filename: string;
-  resumeText: string;
+  extractedText?: string;
+  resumeText?: string;
   wordCount: number;
-  characterCount: number;
+  characterCount?: number;
 };
 
 type AudioTranscriptionResponse = {
@@ -94,11 +95,21 @@ async function postFileToPython<T>(
 }
 
 export async function parseResume(file: File) {
-  return postFileToPython<ResumeParseResponse>(
+  const response = await postFileToPython<ResumeParseResponse>(
     "/api/analyze/resume",
     file,
     PYTHON_SERVICE_TIMEOUT_MS
   );
+
+  const resumeText = response.resumeText ?? response.extractedText ?? "";
+
+  return {
+    success: response.success,
+    filename: response.filename,
+    resumeText,
+    wordCount: response.wordCount,
+    characterCount: response.characterCount ?? resumeText.length,
+  };
 }
 
 export async function transcribeAudio(file: File) {

@@ -75,10 +75,11 @@ export function getNextDifficulty(interview: Interview): QuestionDifficulty {
 }
 
 export async function generateInterviewQuestion(interview: Interview) {
-  const answeredQuestions = (interview.questions || []).filter((question) =>
+  const allQuestions = interview.questions || [];
+  const answeredQuestions = allQuestions.filter((question) =>
     Boolean(question.answer?.trim())
   );
-  const nextOrder = answeredQuestions.length + 1;
+  const nextOrder = allQuestions.length + 1;
   const targetDifficulty = getNextDifficulty(interview);
   const priorContext =
     answeredQuestions.length === 0
@@ -90,23 +91,31 @@ export async function generateInterviewQuestion(interview: Interview) {
           )
           .join("\n\n");
 
+  const previousQuestionsList =
+    allQuestions.length === 0
+      ? ""
+      : `\nPreviously asked questions (DO NOT repeat or rephrase these):\n${allQuestions.map((q) => `- ${q.question}`).join("\n")}\n`;
+
   const parsed = await generateJsonWithGroq<{
     question?: string;
     difficulty?: QuestionDifficulty;
   }>({
     systemInstruction:
-      "You are a professional technical interviewer. Generate exactly one concise interview question at the requested difficulty. Return only valid JSON.",
+      "You are a professional technical interviewer conducting a focused, adaptive interview. Generate exactly one interview question. Return only valid JSON.",
     userPrompt: `
 ${getInterviewContext(interview)}
 
 Question number: ${nextOrder} of ${MAX_INTERVIEW_QUESTIONS}
 Target difficulty: ${targetDifficulty}
-
+${previousQuestionsList}
 Rules:
-- Question 1 must be introductory, conversational, and grounded in the role or resume.
-- Questions 2 and 3 must adapt to prior answers and increase or decrease depth based on previous performance.
+- Question 1: Ask about a specific project, technology, or skill mentioned in the resume or relevant to the role. For example: "Tell me about your experience building [specific project]. What was the architecture and what technical challenges did you face?" Do NOT ask generic motivation questions like "what motivated you" or "tell me about yourself."
+- Questions 2 and 3: Go deeper based on the candidate's previous answers. Ask about specific technical decisions, implementation details, debugging approaches, system design, algorithms, or architecture patterns. Reference their actual answers and probe further.
+- For resume-based interviews: always reference specific projects, technologies, skills, or experiences from the resume text.
+- For role-based interviews: ask practical scenario-based or problem-solving questions relevant to the role.
+- Each question must be distinct from all previously asked questions.
 - Ask exactly one question.
-- Do not include commentary or rubric.
+- Do not include commentary, rubric, or preamble.
 
 Previous interview context:
 ${priorContext}
@@ -118,7 +127,7 @@ Return JSON with this exact shape:
 }
     `.trim(),
     temperature: 0.7,
-    maxOutputTokens: 250,
+    maxOutputTokens: 300,
   });
 
   return {

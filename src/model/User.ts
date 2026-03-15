@@ -141,8 +141,7 @@ const UserSchema: Schema<User> = new Schema({
         required: [true, "Username is required"],
         unique: true,
         trim: true
-    }
-    ,
+    },
     email:{
         type: String,
         required: [true, "Email is required"],
@@ -159,14 +158,13 @@ const UserSchema: Schema<User> = new Schema({
     },
     verifyCode:{
         type: String,
-        required: [true, "Verification code is required"]
     },
     verifyCodeExpiry:{
         type: Date,
-        required: [true, "Verification code expiry date is required"]
     },
     interviews:{
-        type: [InterviewSchema]
+        type: [InterviewSchema],
+        default: []
     }
 })
 

@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 import { auth } from "@/auth";
+import mongoose from "mongoose";
 
 export async function GET() {
 
@@ -15,6 +16,14 @@ export async function GET() {
             { status: 401 }
         );
     }
+
+    if (!mongoose.Types.ObjectId.isValid(session.user.id)) {
+        return Response.json(
+            { success: false, message: "Invalid user session" },
+            { status: 401 }
+        );
+    }
+
     const user = await UserModel.findById(session.user.id);
 
     if (!user) {
@@ -24,7 +33,8 @@ export async function GET() {
         );
     }
 
-    const interviews = user.interviews
+    const interviews = (user.interviews ?? [])
+    .slice()
     .sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     })

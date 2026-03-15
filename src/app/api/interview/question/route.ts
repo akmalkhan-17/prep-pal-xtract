@@ -94,16 +94,57 @@ export async function POST(request: Request) {
       );
     }
 
-    interview.questions = interview.questions || [];
-    interview.questions.push({
-      question: generatedQuestion.question,
-      order: generatedQuestion.order,
-      difficulty: generatedQuestion.difficulty,
-    });
+    // Re-read the interview to check if another concurrent request already pushed a question
+    const freshUser = await UserModel.findById(session.user.id);
+    const freshInterview = freshUser?.interviews.id(interviewId);
+    const freshPending = freshInterview ? getPendingQuestion(freshInterview) : null;
 
-    await user.save();
+    if (freshPending) {
+      // Another request already generated a question — return that one
+      return Response.json(
+        {
+          success: true,
+          isInterviewComplete: false,
+          question: serializeQuestion(freshPending),
+        },
+        { status: 200 }
+      );
+    }
 
-    const savedQuestion = interview.questions[interview.questions.length - 1];
+    // Use atomic $push to avoid Mongoose VersionError on concurrent saves
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: session.user.id, "interviews._id": interviewId },
+      {
+        $push: {
+          "interviews.$.questions": {
+            question: generatedQuestion.question,
+            order: generatedQuestion.order,
+            difficulty: generatedQuestion.difficulty,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return Response.json(
+        { success: false, message: "Failed to save the question" },
+        { status: 500 }
+      );
+    }
+
+    const updatedInterview = updatedUser.interviews.id(interviewId);
+    const savedQuestion =
+      updatedInterview?.questions?.[
+        (updatedInterview.questions?.length ?? 1) - 1
+      ];
+
+    if (!savedQuestion) {
+      return Response.json(
+        { success: false, message: "Failed to retrieve saved question" },
+        { status: 500 }
+      );
+    }
 
     return Response.json(
       {

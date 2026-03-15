@@ -5,7 +5,6 @@ import {
   countAnsweredQuestions,
   getPendingQuestion,
 } from "@/lib/interview-engine";
-import { MAX_INTERVIEW_QUESTIONS } from "@/lib/interview-config";
 import {
   analyzeVideo,
   PythonServiceError,
@@ -54,44 +53,74 @@ export async function POST(request: Request) {
       );
     }
 
-    const questions = interview.questions ?? [];
-    const totalQuestions = interview.totalQuestions || MAX_INTERVIEW_QUESTIONS;
-    const answeredQuestions = countAnsweredQuestions(interview);
-    const pendingQuestion = getPendingQuestion(interview);
+    // Attempt video analysis — skip gracefully if video is empty or invalid
+    let videoAnalysisResult = null;
+    if (video.size > 0) {
+      try {
+        const videoAnalysis = await analyzeVideo(video);
+        videoAnalysisResult = videoAnalysis.analysis;
+      } catch {
+        // Video analysis failed — continue with null metrics
+      }
+    }
 
-    if (
-      questions.length === 0 ||
-      answeredQuestions < totalQuestions ||
-      pendingQuestion
-    ) {
-      return Response.json(
-        {
-          success: false,
-          message: "Interview must have 3 answered questions before ending",
-        },
-        { status: 400 }
+    // Remove any pending unanswered question before calculating scores
+    const pendingQuestion = getPendingQuestion(interview);
+    const filteredQuestionIds = (interview.questions ?? [])
+      .filter((q) =>
+        pendingQuestion ? q._id?.toString() !== pendingQuestion._id?.toString() : true
+      )
+      .map((q) => q._id);
+
+    // Calculate scores based on answered questions only
+    const interviewForScoring = {
+      ...interview.toObject(),
+      questions: (interview.questions ?? []).filter((q) =>
+        pendingQuestion ? q._id?.toString() !== pendingQuestion._id?.toString() : true
+      ),
+      videoMetrics: videoAnalysisResult,
+    };
+    const scores = calculateInterviewScores(interviewForScoring);
+
+    // Use atomic update to avoid VersionError
+    const updateFields: Record<string, unknown> = {
+      "interviews.$.videoMetrics": videoAnalysisResult,
+      "interviews.$.technicalSkillsScore": scores.technicalSkillsScore,
+      "interviews.$.softSkillsScore": scores.softSkillsScore,
+      "interviews.$.overallScore": scores.overallScore,
+      "interviews.$.status": "completed",
+    };
+
+    // If there's a pending unanswered question, remove it by setting the filtered questions
+    if (pendingQuestion) {
+      updateFields["interviews.$.questions"] = (interview.questions ?? []).filter(
+        (q) => q._id?.toString() !== pendingQuestion._id?.toString()
       );
     }
 
-    const videoAnalysis = await analyzeVideo(video);
-    interview.videoMetrics = videoAnalysis.analysis;
+    const updatedUser = await UserModel.findOneAndUpdate(
+      { _id: session.user.id, "interviews._id": interviewId },
+      { $set: updateFields },
+      { new: true }
+    );
 
-    const scores = calculateInterviewScores(interview);
-    interview.technicalSkillsScore = scores.technicalSkillsScore;
-    interview.softSkillsScore = scores.softSkillsScore;
-    interview.overallScore = scores.overallScore;
-    interview.status = "completed";
+    if (!updatedUser) {
+      return Response.json(
+        { success: false, message: "Failed to finalize interview" },
+        { status: 500 }
+      );
+    }
 
-    await user.save();
+    const finalInterview = updatedUser.interviews.id(interviewId);
 
     return Response.json(
       {
         success: true,
-        overallScore: interview.overallScore,
-        technicalSkillsScore: interview.technicalSkillsScore,
-        softSkillsScore: interview.softSkillsScore,
-        videoMetrics: interview.videoMetrics,
-        questions,
+        overallScore: finalInterview?.overallScore ?? scores.overallScore,
+        technicalSkillsScore: finalInterview?.technicalSkillsScore ?? scores.technicalSkillsScore,
+        softSkillsScore: finalInterview?.softSkillsScore ?? scores.softSkillsScore,
+        videoMetrics: videoAnalysisResult,
+        questions: finalInterview?.questions ?? [],
       },
       { status: 200 }
     );

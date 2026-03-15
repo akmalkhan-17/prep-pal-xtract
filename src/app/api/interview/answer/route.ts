@@ -87,15 +87,39 @@ export async function POST(request: Request) {
       transcript,
     });
 
-    questionDoc.answer = transcript;
-    questionDoc.technicalScore = evaluation.technicalScore;
-    questionDoc.communicationScore = evaluation.communicationScore;
-    questionDoc.feedback = evaluation.feedback;
+    // Use atomic $set on the specific array element to avoid VersionError
+    const updatedUser = await UserModel.findOneAndUpdate(
+      {
+        _id: session.user.id,
+        "interviews._id": interviewId,
+      },
+      {
+        $set: {
+          "interviews.$[iv].questions.$[q].answer": transcript,
+          "interviews.$[iv].questions.$[q].technicalScore": evaluation.technicalScore,
+          "interviews.$[iv].questions.$[q].communicationScore": evaluation.communicationScore,
+          "interviews.$[iv].questions.$[q].feedback": evaluation.feedback,
+        },
+      },
+      {
+        arrayFilters: [
+          { "iv._id": interviewId },
+          { "q._id": questionId },
+        ],
+        new: true,
+      }
+    );
 
-    const answeredQuestions = countAnsweredQuestions(interview);
-    const totalQuestions = interview.totalQuestions || MAX_INTERVIEW_QUESTIONS;
+    if (!updatedUser) {
+      return Response.json(
+        { success: false, message: "Failed to save the answer" },
+        { status: 500 }
+      );
+    }
 
-    await user.save();
+    const updatedInterview = updatedUser.interviews.id(interviewId);
+    const answeredQuestions = countAnsweredQuestions(updatedInterview!);
+    const totalQuestions = updatedInterview?.totalQuestions || MAX_INTERVIEW_QUESTIONS;
 
     return Response.json(
       {
