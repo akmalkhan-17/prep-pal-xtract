@@ -157,27 +157,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     
     callbacks: {
-        async jwt({ token, user }) {
-        if ((user || token.email) && !token.id) {
-            const dbUser = await ensureGoogleUser({
-                email: user?.email || token.email,
-                name: user?.name || token.name,
-            });
+        async jwt({ token, user, account }) {
+        if (account) {
+            if (account.provider === "google") {
+                const dbUser = await ensureGoogleUser({
+                    email: user?.email || token.email as string | null | undefined,
+                    name: user?.name || token.name as string | null | undefined,
+                });
 
-            token.id = dbUser._id.toString();
-            token.username = dbUser.username;
-            token.isVerified = dbUser.isVerified;
-            token.email = dbUser.email;
-        }
+                token.id = dbUser._id.toString();
+                token.username = dbUser.username;
+                token.isVerified = dbUser.isVerified;
+                token.email = dbUser.email;
+            } else if (account.provider === "credentials" && user) {
+                const authUser = user as AuthUser;
 
-        // credentials login
-
-        if (user) {
-            const authUser = user as AuthUser;
-
-            token.id = authUser.id;
-            token.username = authUser.username;
-            token.isVerified = authUser.isVerified;
+                token.id = authUser.id;
+                token.username = authUser.username;
+                token.isVerified = authUser.isVerified;
+            }
         }
     
         return token;
@@ -198,4 +196,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     
     secret: process.env.AUTH_SECRET,
+    trustHost: true,
     });
